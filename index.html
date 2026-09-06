@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🌱 KISANSETU - Smart Crop Health Early Warning & Decision Support System</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            emerald: {
+              950: '#04271d',
+              900: '#064e3b',
+              800: '#065f46',
+              700: '#047857',
+              600: '#059669',
+              500: '#10b981',
+              400: '#34d399',
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Leaflet GIS Map CSS & JS CDN -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <!-- Application CSS -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body class="bg-[#0b1d15] text-[#ecfdf5] min-h-screen flex flex-col antialiased selection:bg-emerald-500 selection:text-slate-950">
+
+  <!-- Offline Status Banner -->
+  <div id="offline-banner" class="hidden sticky top-0 z-50"></div>
+
+  <!-- Guided 17-Step Demo Tour Top Bar (Item 34) -->
+  <div id="demo-guide-bar" class="bg-slate-950/90 border-b border-emerald-500/30 sticky top-0 z-40 backdrop-blur-md"></div>
+
+  <!-- Navigation Header -->
+  <header class="border-b border-emerald-500/20 bg-[#091711]/90 backdrop-blur-md sticky top-[41px] z-30">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex items-center justify-between gap-4">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3 cursor-pointer" onclick="navigateTo('landing')">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-400 to-lime-500 flex items-center justify-center text-2xl shadow-lg shadow-emerald-500/20">
+          🌱
+        </div>
+        <div>
+          <div class="text-xl font-extrabold tracking-tight text-white flex items-center gap-2">
+            KISANSETU <span class="text-xs px-2 py-0.5 rounded bg-emerald-900/80 text-emerald-300 border border-emerald-500/40 font-mono">v2.4 PRO</span>
+          </div>
+          <div class="text-[11px] text-emerald-200/70 font-medium">Smart Crop Health Early Warning & Decision Support</div>
+        </div>
+      </div>
+
+      <!-- User Role Indicator & Control Cluster -->
+      <div class="flex items-center gap-3">
+        
+        <!-- Active Role Badge -->
+        <span id="user-role-badge" class="hidden sm:inline-flex px-3 py-1.5 rounded-full bg-emerald-900/80 border border-emerald-500/50 text-emerald-300 text-xs font-bold items-center gap-1.5 shadow">
+          👨🌾 Farmer Mode
+        </span>
+
+        <!-- Quick Scan CTA -->
+        <button onclick="navigateTo('scanner')" class="px-4 py-2 rounded-xl bg-gradient-to-r from-emerald-500 to-lime-500 hover:from-emerald-400 hover:to-lime-400 text-slate-950 font-black text-xs shadow-lg transition transform hover:-translate-y-0.5 flex items-center gap-1.5">
+          <span>📷</span> Scan Crop
+        </button>
+
+        <!-- Mobile Menu Trigger -->
+        <button id="mobile-menu-btn" class="lg:hidden p-2 rounded-lg bg-emerald-950 text-emerald-300 border border-emerald-500/30">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Scrollable Navigation Bar (18 Views) -->
+    <div class="border-t border-emerald-500/10 bg-[#091711]/60">
+      <div class="max-w-7xl mx-auto px-4 overflow-x-auto py-2">
+        <div id="main-nav-links" class="flex items-center gap-2"></div>
+      </div>
+    </div>
+
+    <!-- Mobile Dropdown Menu -->
+    <div id="mobile-menu" class="hidden lg:hidden border-t border-emerald-500/30 bg-slate-950 p-4 space-y-2 text-sm font-medium">
+      <button onclick="navigateTo('landing')" class="block w-full text-left py-2 px-3 rounded hover:bg-emerald-900/50">🏠 Home</button>
+      <button onclick="navigateTo('farmer-dashboard')" class="block w-full text-left py-2 px-3 rounded hover:bg-emerald-900/50">👨🌾 Farmer Dashboard</button>
+      <button onclick="navigateTo('scanner')" class="block w-full text-left py-2 px-3 rounded hover:bg-emerald-900/50">📷 Crop Scanner</button>
+      <button onclick="navigateTo('plant-rec')" class="block w-full text-left py-2 px-3 rounded hover:bg-emerald-900/50">🌿 Plant Recognition</button>
+      <button onclick="navigateTo('risk-forecast')" class="block w-full text-left py-2 px-3 rounded hover:bg-emerald-900/50">📊 Multi-Factor Risk</button>
+      <button onclick="navigateTo('weather')" class="block w-full text-left py-2 px-3 rounded hover:bg-emerald-900/50">🌦 Weather Risk</button>
+      <button onclick="navigateTo('pest-sensor')" class="block w-full text-left py-2 px-3 rounded hover:bg-emerald-900/50">🪤 Pest Traps & IoT</button>
+      <button onclick="navigateTo('gis-map')" class="block w-full text-left py-2 px-3 rounded hover:bg-emerald-900/50">🗺 GIS Hotspots</button>
+      <button onclick="navigateTo('ipm-advisory')" class="block w-full text-left py-2 px-3 rounded hover:bg-emerald-900/50">🌱 IPM Advisory</button>
+      <button onclick="navigateTo('official-dashboard')" class="block w-full text-left py-2 px-3 rounded hover:bg-emerald-900/50">🏛 Agriculture Official</button>
+      <button onclick="navigateTo('admin-arch')" class="block w-full text-left py-2 px-3 rounded hover:bg-emerald-900/50">💻 Architecture & DB</button>
+    </div>
+  </header>
+
+  <!-- Main View Container -->
+  <main id="app-view-container" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6"></main>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="fixed bottom-6 right-6 z-50 space-y-3 pointer-events-none max-w-md w-full"></div>
+
+  <!-- Footer -->
+  <footer class="border-t border-emerald-500/20 bg-[#06120d] py-12 text-xs text-emerald-200/70">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+      
+      <div class="grid md:grid-cols-4 gap-8">
+        <div class="space-y-3">
+          <div class="text-lg font-bold text-white flex items-center gap-2">
+            🌱 KISANSETU
+          </div>
+          <p class="leading-relaxed">
+            Smart Crop Health Early Warning & Decision Support System. AI Computer Vision + Weather + IoT + GIS + Expert Validation.
+          </p>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-white text-sm mb-3">Core Modules</h4>
+          <ul class="space-y-2">
+            <li><a href="#" onclick="navigateTo('scanner')" class="hover:text-emerald-400">AI Crop Scanner</a></li>
+            <li><a href="#" onclick="navigateTo('plant-rec')" class="hover:text-emerald-400">Plant Species Recognition</a></li>
+            <li><a href="#" onclick="navigateTo('risk-forecast')" class="hover:text-emerald-400">Risk Engine</a></li>
+            <li><a href="#" onclick="navigateTo('gis-map')" class="hover:text-emerald-400">GIS Hotspot Mapping</a></li>
+            <li><a href="#" onclick="navigateTo('ipm-advisory')" class="hover:text-emerald-400">IPM Advisory</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-white text-sm mb-3">Stakeholders</h4>
+          <ul class="space-y-2">
+            <li><a href="#" onclick="setRole('farmer')" class="hover:text-emerald-400">Farmer Interface</a></li>
+            <li><a href="#" onclick="setRole('extension')" class="hover:text-emerald-400">Extension Workers</a></li>
+            <li><a href="#" onclick="setRole('expert')" class="hover:text-emerald-400">Agriculture Experts</a></li>
+            <li><a href="#" onclick="setRole('official')" class="hover:text-emerald-400">Agriculture Officials</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h4 class="font-bold text-white text-sm mb-3">Institutional References</h4>
+          <ul class="space-y-2">
+            <li><a href="https://www.fao.org/" target="_blank" class="hover:text-emerald-400">FAO Plant Health Framework</a></li>
+            <li><a href="https://icar.gov.in/" target="_blank" class="hover:text-emerald-400">ICAR Weather Advisory</a></li>
+            <li><a href="https://ppqs.gov.in/" target="_blank" class="hover:text-emerald-400">DPPQ&S Pesticide Registration</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="border-t border-emerald-900/40 pt-6 flex flex-wrap items-center justify-between gap-4 text-[11px] text-slate-400">
+        <div>© 2026 KISANSETU Platform • Proactive Crop Biosecurity</div>
+        <div class="flex items-center gap-4">
+          <span class="text-emerald-400 font-mono">PostgreSQL / PostGIS Connected</span>
+          <span>•</span>
+          <span class="text-emerald-400 font-mono">ESP32 IoT Sensor Telemetry Active</span>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- App Data & Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
